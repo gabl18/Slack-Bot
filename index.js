@@ -31,7 +31,8 @@ app.command("/fred-bot-help", async ({ ack, respond }) => {
 /fred-bot-ping - Check bot latency
 /fred-bot-help - Get a list of all commands
 /fred-bot-catfact - Get a random cat fact
-/fred-bot-joke - Get a random joke`
+/fred-bot-joke - Get a random joke
+/fred-bot-cipher [encode/decode] [text] - Decodes/Encodes text with the Ceasar Cipher`
   });
 });
 
@@ -63,5 +64,59 @@ ${response.data.punchline}`
     });
   } catch (err) {
     await respond({ text: "Failed to fetch a joke." });
+  }
+});
+
+/* Ceaser Cipher */
+
+function ceasarCipher(str, shift){
+  if (shift < 0) {
+    shift = (shift % 26) + 26;
+  }
+
+  return str.split('').map(char => {
+    if (char.match(/[a-z]/i)) {
+      const code = char.charCodeAt(0);
+
+      if (code >= 65 && code <= 90) {
+        return String.fromCharCode(((code - 65 + shift) % 26) + 97);
+      }
+
+      if (code >= 97 && code <= 122) {
+        return String.fromCharCode(((code - 97 + shift) % 26) +97);
+      }
+    }
+
+    return char;
+  }).join('');
+}
+
+app.command("/fred-bot-cipher", async ({command, ack, respond}) => {
+  await ack();
+
+  const fullText = command.text ? command.text.trim() : "";
+
+  const firstSpaceIndex = fullText.indexOf(" ");
+
+  if (firstSpaceIndex === -1 || !fullText) {
+    await respond({
+      text: "Please provide mode ('encode' or 'decode') and afterwards your Text!"
+    });
+    return;
+  }
+
+  const mode = fullText.substring(0, firstSpaceIndex).toLowerCase();
+  const message = fullText.substring(firstSpaceIndex + 1).trim();
+
+  if (mode === "encode") {
+    const encoded = ceasarCipher(message, 3);
+    await respond({text: `*Encoded Text:* ${encoded}`});
+  } else if (mode === "decode") {
+    const decoded = ceasarCipher(message, -3);
+    await respond({text: `*Decoded Text:* ${decoded}`});
+  } else {
+    await respond({
+      text: "Unknown Mode! Please use `encode` or `decode`.\nExample: `/fred-bot-cipher decode `Hello``"
+    });
   }
 });
