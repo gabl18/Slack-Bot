@@ -116,7 +116,7 @@ app.command("/fred-bot-cipher", async ({command, ack, respond}) => {
     await respond({text: `*Decoded Text:* ${decoded}`});
   } else {
     await respond({
-      text: "Unknown Mode! Please use `encode` or `decode`.\nExample: `/fred-bot-cipher decode `Hello``"
+      text: "Unknown Mode! Please use `encode` or `decode`.\nExample: `/fred-bot-cipher decode Hello`"
     });
   }
 });
